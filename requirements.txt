@@ -4,3 +4,7 @@ matplotlib
 seaborn
 xlsxwriter
 openpyxl
+openai
+streamlit
+networkx
+matplotlib
