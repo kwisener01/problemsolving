@@ -8,6 +8,7 @@ OPENAI_API_KEY = st.secrets["OPENAI"]["API_KEY"]
 # Initialize OpenAI Client
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
+
 # Initialize Streamlit App
 st.title("Creative Problem-Solving & Root Cause Analysis Tool")
 
@@ -15,21 +16,33 @@ st.title("Creative Problem-Solving & Root Cause Analysis Tool")
 st.subheader("Describe the Problem")
 problem_description = st.text_area("Enter the problem you are facing:", key="problem_input")
 
-st.subheader("Root Cause Analysis")
-selected_method = st.selectbox("Select a method for root cause analysis:", ["5 Whys", "Fishbone Diagram", "Pareto Analysis"], key="method_selection")
+st.subheader("Root Cause Analysis - 5 Whys")
 
-if st.button("Analyze Root Cause", key="analyze_button"):
-    if problem_description:
-        prompt = f"Perform a {selected_method} analysis on the following problem: {problem_description}."
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        root_cause_analysis = response.choices[0].message.content
-        st.subheader("Root Cause Analysis Result")
-        st.write(root_cause_analysis)
-    else:
-        st.warning("Please enter a problem description.")
+if problem_description:
+    why_responses = []
+    for i in range(1, 6):
+        question = f"Why {i}?"
+        guidance_code = f"(Think deeper: Consider process failures, lack of training, systemic issues)"
+        response = st.text_area(f"{question} {guidance_code}", key=f"why_{i}")
+        why_responses.append(response)
+        if not response:
+            break
+
+    if st.button("Analyze Root Cause", key="analyze_button"):
+        filled_why_responses = [resp for resp in why_responses if resp]
+        if filled_why_responses:
+            prompt = f"Analyze the 5 Whys responses:
+            Problem: {problem_description}
+            " + "\n".join([f"{i+1}. {resp}" for i, resp in enumerate(filled_why_responses)])
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            root_cause_analysis = response.choices[0].message.content
+            st.subheader("Root Cause Analysis Result")
+            st.write(root_cause_analysis)
+        else:
+            st.warning("Please answer at least one Why question.")
 
 # Generate Creative Solutions
 st.subheader("Generate Creative Solutions")
@@ -53,6 +66,7 @@ if st.button("Save", key="save_button"):
     if save_name:
         results = {
             "Problem": problem_description,
+            "5 Whys": why_responses,
             "Root Cause Analysis": root_cause_analysis,
             "Suggested Solutions": creative_solutions
         }
