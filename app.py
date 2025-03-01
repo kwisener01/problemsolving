@@ -15,6 +15,9 @@ problem_description = st.text_area("Enter the problem you are facing:", key="pro
 
 st.subheader("Root Cause Analysis - 5 Whys Conversation")
 
+root_cause_analysis = ""  # Initialize variable
+creative_solutions = ""  # Initialize variable
+
 if problem_description:
     why_responses = []
     for i in range(1, 6):
