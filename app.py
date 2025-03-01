@@ -3,8 +3,10 @@ import openai
 import pandas as pd
 import json
 
-# Set OpenAI API Key
-client = openai.OpenAI(api_key="your_openai_api_key")
+OPENAI_API_KEY = st.secrets["OPENAI"]["API_KEY"]
+
+# Initialize OpenAI Client
+client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
 # Initialize Streamlit App
 st.title("Creative Problem-Solving & Root Cause Analysis Tool")
